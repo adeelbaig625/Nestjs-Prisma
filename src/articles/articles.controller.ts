@@ -6,10 +6,13 @@ import {
   Patch,
   Param,
   Delete,
+  NotFoundException,
 } from '@nestjs/common';
 import { ArticlesService } from './articles.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
+import { ApiCreatedResponse } from '@nestjs/swagger';
+import { ArticleEntity } from './article.entity';
 
 @Controller('articles')
 export class ArticlesController {
@@ -21,27 +24,45 @@ export class ArticlesController {
   }
 
   @Get()
+  @ApiCreatedResponse({ type: ArticleEntity, isArray: true })
   findAll() {
     return this.articlesService.findAll();
   }
 
   @Get('drafts')
+  @ApiCreatedResponse({ type: ArticleEntity, isArray: true })
   findAllDrafts() {
     return this.articlesService.findAllDrafts();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.articlesService.findOne(+id);
+  @ApiCreatedResponse({ type: ArticleEntity })
+  async findOne(@Param('id') id: string) {
+    const article = await this.articlesService.findOne(+id);
+    if (!article) {
+      throw new NotFoundException(`Article with id ${id} not found`);
+    }
+    return article;
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateArticleDto: UpdateArticleDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateArticleDto: UpdateArticleDto,
+  ) {
+    const article = await this.articlesService.findOne(+id);
+    if (!article) {
+      throw new NotFoundException(`Article with id ${id} not found`);
+    }
     return this.articlesService.update(+id, updateArticleDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string) {
+    const article = await this.articlesService.findOne(+id);
+    if (!article) {
+      throw new NotFoundException(`Article with id ${id} not found`);
+    }
     return this.articlesService.remove(+id);
   }
 }

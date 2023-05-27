@@ -10,7 +10,7 @@ generator client {
 model article{
     id Int @id @default(autoincrement())
     title String @unique
-    description String
+    description String? 
     body String
     published Boolean @default(false)
     createdAt DateTime @default(now())

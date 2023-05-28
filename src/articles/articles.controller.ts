@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   NotFoundException,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ArticlesService } from './articles.service';
 import { CreateArticleDto } from './dto/create-article.dto';
@@ -37,8 +38,8 @@ export class ArticlesController {
 
   @Get(':id')
   @ApiCreatedResponse({ type: ArticleEntity })
-  async findOne(@Param('id') id: string) {
-    const article = await this.articlesService.findOne(+id);
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    const article = await this.articlesService.findOne(id);
     if (!article) {
       throw new NotFoundException(`Article with id ${id} not found`);
     }
@@ -47,10 +48,10 @@ export class ArticlesController {
 
   @Patch(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateArticleDto: UpdateArticleDto,
   ) {
-    const article = await this.articlesService.findOne(+id);
+    const article = await this.articlesService.findOne(id);
     if (!article) {
       throw new NotFoundException(`Article with id ${id} not found`);
     }
@@ -58,8 +59,8 @@ export class ArticlesController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    const article = await this.articlesService.findOne(+id);
+  async remove(@Param('id') id: number) {
+    const article = await this.articlesService.findOne(id);
     if (!article) {
       throw new NotFoundException(`Article with id ${id} not found`);
     }

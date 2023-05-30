@@ -14,7 +14,9 @@ import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { ApiCreatedResponse } from '@nestjs/swagger';
 import { ArticleEntity } from './article.entity';
+import { SkipThrottle } from '@nestjs/throttler';
 
+@SkipThrottle()
 @Controller('articles')
 export class ArticlesController {
   constructor(private readonly articlesService: ArticlesService) {}
@@ -24,6 +26,7 @@ export class ArticlesController {
     return this.articlesService.create(createArticleDto);
   }
 
+  @SkipThrottle(false)
   @Get()
   @ApiCreatedResponse({ type: ArticleEntity, isArray: true })
   findAll() {
